@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 with open('README.rst') as fp:
     long_description = fp.read()
 long_description = long_description.replace('.. doctest::', '.. code-block::')
-long_description = re.sub(r'(\.\. autofunction:: .*?$)', ':code:`$1`', long_description)
+long_description = re.sub(r'(\.\. autofunction:: .*?$)', r':code:`\1`', long_description)
 
 
 tests_require = [
@@ -16,7 +16,7 @@ tests_require = [
 
 setup(
     name='localscope',
-    version='0.1',
+    version='0.1.1',
     author='Till Hoffmann',
     packages=find_packages(),
     url='https://github.com/tillahoffmann/localscope',
