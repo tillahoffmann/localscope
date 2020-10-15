@@ -1,6 +1,15 @@
 🔐 localscope
 =============
 
+.. image:: https://github.com/tillahoffmann/localscope/workflows/CI/badge.svg
+  :target: https://github.com/tillahoffmann/localscope/actions?query=workflow%3A%22CI%22
+
+.. image:: https://img.shields.io/pypi/v/localscope.svg?style=flat-square
+   :target: https://pypi.python.org/pypi/localscope
+
+.. image:: https://readthedocs.org/projects/localscope/badge/?version=latest
+  :target: https://localscope.readthedocs.io/en/latest/?badge=latest
+
 Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`__, are outstanding tools for analysing data, generating visualisations, and training machine learning models. However, the interactive nature allows global variables to leak into the scope of functions accidentally, leading to unexpected behaviour. Localscope gives you peace of mind by restricting the variables a function has access to.
 
 .. doctest::
