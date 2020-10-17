@@ -26,11 +26,10 @@ def localscope(func=None, *, predicate=None, allowed=None, allow_closure=False, 
         Globals associated with the root callable which are passed to dependent code blocks for
         analysis.
 
-    Notes
-    -----
-    The localscope decorator analysis the decorated function (and any dependent code blocks) at the
-    time of declaration because static analysis has a minimal impact on performance and  it is
-    easier to implement.
+    Attributes
+    ----------
+    mfc : localscope
+        Decorator allowing *m*\\ odules, *f*\\ unctions, and *c*\\ lasses to enter the local scope.
 
     Examples
     --------
@@ -63,6 +62,23 @@ def localscope(func=None, *, predicate=None, allowed=None, allow_closure=False, 
     ...     print(a)
     >>> print_a()
     hello world
+
+    Localscope is strict by default, but :code:`localscope.mfc` can be used to allow modules,
+    functions, and classes to enter the function scope: a common use case in notebooks.
+
+    >>> class MyClass:
+    ...     pass
+    >>> @localscope.mfc
+    ... def create_instance():
+    ...     return MyClass()
+    >>> create_instance()
+    <MyClass object at 0x...>
+
+    Notes
+    -----
+    The localscope decorator analysis the decorated function (and any dependent code blocks) at the
+    time of declaration because static analysis has a minimal impact on performance and  it is
+    easier to implement.
     """
     # Set defaults
     predicate = predicate or inspect.ismodule
@@ -108,3 +124,10 @@ def localscope(func=None, *, predicate=None, allowed=None, allow_closure=False, 
             localscope(const, _globals=_globals, allow_closure=True, **kwargs)
 
     return func
+
+
+def _allow_mfc(x):
+    return inspect.ismodule(x) or inspect.isfunction(x) or inspect.isclass(x)
+
+
+localscope.mfc = localscope(predicate=_allow_mfc)

@@ -102,3 +102,26 @@ def test_recursive_local_closure():
 
         def child():
             return a
+
+
+def test_mfc():
+    import sys
+
+    x = lambda: 0  # noqa: E731
+
+    class MyClass:
+        pass
+
+    # Check we can access modules, functions, and classes
+    @localscope.mfc
+    def doit():
+        sys.version
+        x()
+        MyClass()
+
+    x = 1
+
+    with pytest.raises(ValueError):
+        @localscope.mfc
+        def breakit():
+            x + 1
