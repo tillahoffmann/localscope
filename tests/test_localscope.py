@@ -125,3 +125,41 @@ def test_mfc():
         @localscope.mfc
         def breakit():
             x + 1
+
+
+def test_comprehension_with_argument():
+    @localscope
+    def f(n):
+        return [n for i in range(n)]
+    assert f(2) == [2, 2]
+
+
+def test_comprehension_with_closure():
+    @localscope
+    def f():
+        n = 3
+        return [n for i in range(n)]
+    assert f() == [3, 3, 3]
+
+
+def test_argument():
+    @localscope
+    def add(a):
+        return a + 1
+    assert add(3) == 4
+
+
+def test_argument_with_closure():
+    @localscope
+    def add(a):
+        return a + 1
+        lambda: a
+    assert add(3) == 4
+
+
+def test_local_deref():
+    @localscope
+    def identity(x):
+        return x
+        lambda: x
+    assert identity(42) == 42
