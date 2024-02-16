@@ -1,5 +1,6 @@
 -e file:.[tests,docs]
 black
+mypy
 twine
 # Additional version restrictions for Python 3.8.
 alabaster <= 0.7.13

@@ -8,6 +8,7 @@ build : setup.py docs doctests lint tests
 lint :
 	flake8
 	black --check .
+	mypy localscope
 
 docs :
 	# Always build from scratch because of dodgy Sphinx caching.
