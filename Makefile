@@ -1,4 +1,4 @@
-.PHONY : dist docs doctests lint tests
+.PHONY : dist docs doctests docker-image lint tests
 
 # Build documentation, lint the code, and run tests.
 build : setup.py docs doctests lint tests
@@ -26,3 +26,14 @@ tests :
 # Build pinned requirements file.
 requirements.txt : requirements.in setup.py
 	pip-compile -v $<
+
+# Docker versions.
+VERSIONS = 3.8 3.9 3.10 3.11 3.12
+IMAGES = ${addprefix docker-image/,${VERSIONS}}
+
+docker-images : ${IMAGES}
+${IMAGES} : docker-image/% :
+	docker build --build-arg version=$* -t localscope:$* .
+
+$(addprefix docker-shell/,${VERSIONS}) : docker-shell/% : docker-image/%
+	docker run --rm -it localscope:$* bash
