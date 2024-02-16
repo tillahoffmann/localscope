@@ -4,19 +4,19 @@ import functools as ft
 import inspect
 import logging
 import types
-from typing import Callable, Set, Optional
+from typing import Any, Callable, Dict, Optional, Set, Union
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 def localscope(
-    func: Optional[Callable] = None,
+    func: Optional[Union[types.FunctionType, types.CodeType]] = None,
     *,
     predicate: Optional[Callable] = None,
     allowed: Optional[Set[str]] = None,
     allow_closure: bool = False,
-    _globals: Optional[Set[str]] = None,
+    _globals: Optional[Dict[str, Any]] = None,
 ):
     """
     Restrict the scope of a callable to local variables to avoid unintentional
@@ -87,7 +87,7 @@ def localscope(
     """
     # Set defaults
     predicate = predicate or inspect.ismodule
-    allowed = list(allowed or [])
+    allowed = set(allowed) if allowed else set()
     if func is None:
         return ft.partial(
             localscope,
@@ -101,9 +101,10 @@ def localscope(
         _globals = {**func.__globals__, **inspect.getclosurevars(func).nonlocals}
     else:
         code = func
+        _globals = _globals or {}
 
     # Add function arguments to the list of allowed exceptions
-    allowed.extend(code.co_varnames[: code.co_argcount])
+    allowed.update(code.co_varnames[: code.co_argcount])
 
     opnames = {"LOAD_GLOBAL"}
     if not allow_closure:
@@ -125,9 +126,9 @@ def localscope(
             if not predicate(value):
                 raise ValueError(f"`{name}` is not a permitted global")
         elif instruction.opname == "STORE_DEREF":
-            allowed.append(name)
-    # Deal with code objects recursively after add the current arguments to the allowed
-    # exceptions
+            allowed.add(name)
+    # Deal with code objects recursively after adding the current arguments to the
+    # allowed exceptions
     for const in code.co_consts:
         if isinstance(const, types.CodeType):
             localscope(
@@ -145,4 +146,4 @@ def _allow_mfc(x):
     return inspect.ismodule(x) or inspect.isfunction(x) or inspect.isclass(x)
 
 
-localscope.mfc = localscope(predicate=_allow_mfc)
+localscope.mfc = localscope(predicate=_allow_mfc)  # type: ignore[attr-defined]

@@ -56,8 +56,12 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==10.2.0
     # via jaraco-classes
+mypy==1.8.0
+    # via -r requirements.in
 mypy-extensions==1.0.0
-    # via black
+    # via
+    #   black
+    #   mypy
 nh3==0.2.15
     # via readme-renderer
 packaging==23.2
@@ -133,11 +137,14 @@ tomli==2.0.1
     # via
     #   black
     #   coverage
+    #   mypy
     #   pytest
 twine==5.0.0
     # via -r requirements.in
 typing-extensions==4.9.0
-    # via black
+    # via
+    #   black
+    #   mypy
 urllib3==2.2.0
     # via
     #   requests
