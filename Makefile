@@ -11,8 +11,8 @@ lint :
 docs :
 	# Always build from scratch because of dodgy Sphinx caching.
 	rm -rf docs/_build
-	sphinx-build -b doctest . docs/_build
-	sphinx-build -b html . docs/_build
+	sphinx-build -nW -b doctest . docs/_build
+	sphinx-build -nW -b html . docs/_build
 
 clean :
 	rm -rf docs/_build
