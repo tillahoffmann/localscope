@@ -4,7 +4,7 @@
 .. image:: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml/badge.svg
   :target: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml
 
-.. image:: https://img.shields.io/pypi/v/localscope.svg?style=flat-square
+.. image:: https://img.shields.io/pypi/v/localscope.svg
    :target: https://pypi.python.org/pypi/localscope
 
 .. image:: https://readthedocs.org/projects/localscope/badge/?version=latest
