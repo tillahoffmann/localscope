@@ -17,3 +17,7 @@ doctest_global_setup = "from localscope import localscope"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
+nitpick_ignore = [
+    ("py:class", "code"),
+    ("py:class", "function"),
+]
