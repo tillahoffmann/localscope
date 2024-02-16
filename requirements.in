@@ -1,2 +1,11 @@
 -e file:.[tests,docs]
+black
 twine
+# Additional version restrictions for Python 3.8.
+alabaster <= 0.7.13
+sphinx <= 7.1.2
+sphinxcontrib-applehelp <= 1.0.4
+sphinxcontrib-devhelp <= 1.0.2
+sphinxcontrib-htmlhelp <= 2.0.1
+sphinxcontrib-qthelp <= 1.0.3
+sphinxcontrib-serializinghtml <= 1.1.5
