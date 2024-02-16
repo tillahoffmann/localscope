@@ -2,10 +2,11 @@ name: localscope
 
 on:
   push:
-    branches: [ master ]
-    tags: [ v* ]
+    branches:
+    - main
   pull_request:
-    branches: [ master ]
+    branches:
+    - main
   workflow_dispatch:
 
 jobs:

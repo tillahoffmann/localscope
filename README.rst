@@ -1,8 +1,8 @@
 🔐 localscope
 =============
 
-.. image:: https://github.com/tillahoffmann/localscope/workflows/CI/badge.svg
-  :target: https://github.com/tillahoffmann/localscope/actions?query=workflow%3A%22CI%22
+.. image:: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml/badge.svg
+  :target: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml
 
 .. image:: https://img.shields.io/pypi/v/localscope.svg?style=flat-square
    :target: https://pypi.python.org/pypi/localscope
