@@ -6,8 +6,10 @@
 #
 -e file:.
     # via file:///-
-alabaster==0.7.16
-    # via sphinx
+alabaster==0.7.13
+    # via
+    #   -r requirements.in
+    #   sphinx
 babel==2.14.0
     # via sphinx
 black==24.2.0
@@ -101,20 +103,32 @@ rich==13.7.0
     # via twine
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.6
-    # via localscope
-sphinxcontrib-applehelp==1.0.8
-    # via sphinx
-sphinxcontrib-devhelp==1.0.6
-    # via sphinx
-sphinxcontrib-htmlhelp==2.0.5
-    # via sphinx
+sphinx==7.1.2
+    # via
+    #   -r requirements.in
+    #   localscope
+sphinxcontrib-applehelp==1.0.4
+    # via
+    #   -r requirements.in
+    #   sphinx
+sphinxcontrib-devhelp==1.0.2
+    # via
+    #   -r requirements.in
+    #   sphinx
+sphinxcontrib-htmlhelp==2.0.1
+    # via
+    #   -r requirements.in
+    #   sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.7
-    # via sphinx
-sphinxcontrib-serializinghtml==1.1.10
-    # via sphinx
+sphinxcontrib-qthelp==1.0.3
+    # via
+    #   -r requirements.in
+    #   sphinx
+sphinxcontrib-serializinghtml==1.1.5
+    # via
+    #   -r requirements.in
+    #   sphinx
 tomli==2.0.1
     # via
     #   black

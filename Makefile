@@ -26,4 +26,3 @@ tests :
 # Build pinned requirements file.
 requirements.txt : requirements.in setup.py
 	pip-compile -v $<
-	pip-sync $@
