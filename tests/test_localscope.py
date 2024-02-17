@@ -202,3 +202,19 @@ def test_local_deref():
         lambda: x
 
     assert identity(42) == 42
+
+
+def test_method():
+    x = 1
+
+    with pytest.raises(LocalscopeException, match="`x` is not a permitted"):
+
+        class MyClass:
+            @localscope
+            def my_func(self, a):
+                return a + x
+
+    class MyOtherClass:
+        @localscope(allowed=["x"])
+        def my_func(self, a):
+            return a + x
