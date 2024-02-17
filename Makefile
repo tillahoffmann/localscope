@@ -1,7 +1,9 @@
 .PHONY : dist docs doctests docker-image lint tests
 
 # Build documentation, lint the code, and run tests.
-build : setup.py docs doctests lint tests
+build : docs doctests lint tests dist
+
+dist : setup.py
 	python setup.py sdist
 	twine check dist/*.tar.gz
 

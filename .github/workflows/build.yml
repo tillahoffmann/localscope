@@ -24,18 +24,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}.
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-    - name: Install dependencies.
+    - name: Install dependencies
       run: pip install -r requirements.txt
-    - name: Lint code.
+    - name: Lint code
       run: make lint
-    - name: Build documentation.
+    - name: Build documentation
       run: make docs
-    - name: Run doctests.
+    - name: Run doctests
       run: make doctests
-    - name: Run tests.
+    - name: Run tests
       run: make tests
+    - name: Build the package
+      run: make dist
+    - name: Upload to PyPI
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        skip-existing: true
