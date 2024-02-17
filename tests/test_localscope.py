@@ -1,4 +1,4 @@
-from localscope import localscope
+from localscope import localscope, LocalscopeException
 import uuid
 import pytest
 
@@ -16,15 +16,24 @@ def test_vanilla_function():
 
 
 def test_missing_global():
-    with pytest.raises(NameError):
+    def func():
+        return never_declared  # noqa: F821
 
-        @localscope
-        def func():
-            return never_ever_declared  # noqa: F821
+    with pytest.raises(LocalscopeException, match="`never_declared` is not in globals"):
+        localscope(func)
+
+    # IMPORTANT! This function can be executed, but localscope complains because the
+    # global variable is not defined at the time when the function is analysed. This
+    # could be improved, but, most likely, one shouldn't write functions that rely on
+    # future globals in the first place.
+    """
+    never_declared = 123
+    assert func() == 123
+    """
 
 
 def test_forbidden_global():
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`forbidden_global` is not a perm"):
 
         @localscope
         def return_forbidden_global():
@@ -57,7 +66,7 @@ def test_closure():
 
         return return_forbidden_closure()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`forbidden_closure` is not a perm"):
         wrapper()
 
 
@@ -76,7 +85,7 @@ def test_allow_any_closure():
 
 def test_allow_custom_predicate():
     decorator = localscope(predicate=lambda x: isinstance(x, int))
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`forbidden_global` is not a perm"):
 
         @decorator
         def return_forbidden_global():
@@ -90,7 +99,7 @@ def test_allow_custom_predicate():
 
 
 def test_comprehension():
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`integer_global` is not a perm"):
 
         @localscope
         def evaluate_mse(xs, ys):  # missing argument integer_global
@@ -98,7 +107,7 @@ def test_comprehension():
 
 
 def test_recursive():
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`forbidden_global` is not a perm"):
 
         @localscope
         def wrapper():
@@ -106,6 +115,17 @@ def test_recursive():
                 return forbidden_global
 
             return return_forbidden_global()
+
+
+def test_recursive_without_call():
+    # We even raise an exception if we don't call a function. That's necessary because
+    # we can't trace all possible execution paths without actually running the function.
+    with pytest.raises(LocalscopeException, match="`forbidden_global` is not a perm"):
+
+        @localscope
+        def wrapper():
+            def return_forbidden_global():
+                return forbidden_global
 
 
 def test_recursive_local_closure():
@@ -134,7 +154,7 @@ def test_mfc():
 
     x = 1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(LocalscopeException, match="`x` is not a permitted"):
 
         @localscope.mfc
         def breakit():
