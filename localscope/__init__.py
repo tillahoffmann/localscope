@@ -41,7 +41,8 @@ def localscope(
         ...     print(a)
         Traceback (most recent call last):
         ...
-        ValueError: `a` is not a permitted global
+        localscope.LocalscopeException: `a` is not a permitted global (file "...",
+            line 1, in print_a)
 
         The scope of a function can be extended by providing a list of allowed
         exceptions.
@@ -95,6 +96,7 @@ def localscope(
             allowed=allowed,
             predicate=predicate,
         )
+
     return _localscope(
         func,
         allow_closure=allow_closure,
@@ -102,6 +104,25 @@ def localscope(
         predicate=predicate,
         _globals={},
     )
+
+
+class LocalscopeException(RuntimeError):
+    """
+    Raised when a callable tries to access a non-local variable.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        code: types.CodeType,
+        instruction: Optional[dis.Instruction] = None,
+    ) -> None:
+        if instruction and instruction.starts_line:
+            lineno = instruction.starts_line
+        else:
+            lineno = code.co_firstlineno
+        details = f'file "{code.co_filename}", line {lineno}, in {code.co_name}'
+        super().__init__(f"{message} ({details})")
 
 
 def _localscope(
@@ -148,11 +169,15 @@ def _localscope(
                 continue
             # Complain if the variable is not available.
             if name not in _globals:
-                raise NameError(f"`{name}` is not in globals")
+                raise LocalscopeException(
+                    f"`{name}` is not in globals", code, instruction
+                )
             # Check if variable is allowed by value.
             value = _globals[name]
             if not predicate(value):
-                raise ValueError(f"`{name}` is not a permitted global")
+                raise LocalscopeException(
+                    f"`{name}` is not a permitted global", code, instruction
+                )
         elif instruction.opname == "STORE_DEREF":
             # Store a new allowed variable which has been created in the scope of the
             # function.
