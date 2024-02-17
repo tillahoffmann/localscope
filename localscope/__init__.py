@@ -16,7 +16,6 @@ def localscope(
     predicate: Optional[Callable] = None,
     allowed: Optional[Set[str]] = None,
     allow_closure: bool = False,
-    _globals: Optional[Dict[str, Any]] = None,
 ):
     """
     Restrict the scope of a callable to local variables to avoid unintentional
@@ -27,8 +26,6 @@ def localscope(
         predicate : Predicate to determine whether a global variable is allowed in the
             scope. Defaults to allow any module.
         allowed: Names of globals that are allowed to enter the scope.
-        _globals : Globals associated with the root callable which are passed to
-            dependent code blocks for analysis.
 
     Attributes:
         mfc: Decorator allowing *m*\\ odules, *f*\\ unctions, and *c*\\ lasses to enter
@@ -86,16 +83,41 @@ def localscope(
         on performance and it is easier to implement.
     """
     # Set defaults and construct partial if the callable has not yet been provided for
-    # parameterized decorators, e.g., @localscope(allowed={"foo", "bar"}).
-    predicate = predicate or inspect.ismodule
+    # parameterized decorators, e.g., @localscope(allowed={"foo", "bar"}). This is a
+    # thin wrapper around the actual implementation `_localscope`. The wrapper
+    # reconstructs an informative traceback.
     allowed = set(allowed) if allowed else set()
-    if func is None:
+    predicate = predicate or inspect.ismodule
+    if not func:
         return ft.partial(
             localscope,
             allow_closure=allow_closure,
-            predicate=predicate,
             allowed=allowed,
+            predicate=predicate,
         )
+    return _localscope(
+        func,
+        allow_closure=allow_closure,
+        allowed=allowed,
+        predicate=predicate,
+        _globals={},
+    )
+
+
+def _localscope(
+    func: Union[types.FunctionType, types.CodeType],
+    *,
+    predicate: Callable,
+    allowed: Set[str],
+    allow_closure: bool,
+    _globals: Dict[str, Any],
+):
+    """
+    Args:
+        ...: Same as for the wrapper :func:`localscope`.
+        _globals : Globals associated with the root callable which are passed to
+            dependent code blocks for analysis.
+    """
 
     # Extract global variables from a function
     # (https://docs.python.org/3/library/types.html#types.FunctionType) or keep the
@@ -106,7 +128,6 @@ def localscope(
         _globals = {**func.__globals__, **inspect.getclosurevars(func).nonlocals}
     else:
         code = func
-        _globals = _globals or {}
 
     # Add function arguments to the list of allowed exceptions.
     allowed.update(code.co_varnames[: code.co_argcount])
@@ -141,7 +162,7 @@ def localscope(
     # allowed exceptions
     for const in code.co_consts:
         if isinstance(const, types.CodeType):
-            localscope(
+            _localscope(
                 const,
                 _globals=_globals,
                 allow_closure=True,

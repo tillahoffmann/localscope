@@ -117,6 +117,17 @@ def test_recursive():
             return return_forbidden_global()
 
 
+def test_recursive_without_call():
+    # We even raise an exception if we don't call a function. That's necessary because
+    # we can't trace all possible execution paths without actually running the function.
+    with pytest.raises(ValueError):
+
+        @localscope
+        def wrapper():
+            def return_forbidden_global():
+                return forbidden_global
+
+
 def test_recursive_local_closure():
     @localscope
     def wrapper():
