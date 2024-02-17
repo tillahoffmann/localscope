@@ -3,9 +3,9 @@
 # Build documentation, lint the code, and run tests.
 build : docs doctests lint tests dist
 
-dist : setup.py
-	python setup.py sdist
-	twine check dist/*.tar.gz
+dist : pyproject.toml
+	python -m build
+	twine check dist/*.tar.gz dist/*.whl
 
 lint :
 	flake8
@@ -27,7 +27,7 @@ tests :
 		--cov-fail-under=100
 
 # Build pinned requirements file.
-requirements.txt : requirements.in setup.py
+requirements.txt : requirements.in pyproject.toml
 	pip-compile -v $<
 
 # Docker versions.
