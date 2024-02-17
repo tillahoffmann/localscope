@@ -21,3 +21,4 @@ nitpick_ignore = [
     ("py:class", "code"),
     ("py:class", "function"),
 ]
+html_theme = "furo"

@@ -20,7 +20,8 @@ Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`_
    ...     print(a)
    Traceback (most recent call last):
      ...
-   localscope.LocalscopeException: `a` is not a permitted global (file "...", line 1, in print_a)
+   localscope.LocalscopeException: `a` is not a permitted global (file "...",
+      line 1, in print_a)
 
 Motivation and detailed example
 -------------------------------
@@ -65,7 +66,8 @@ This example may seem contrived. But unintended information leakage from the glo
    ...     return sum(((x - y) / sigma) ** 2 for x, y in zip(xs, ys))
    Traceback (most recent call last):
      ...
-   localscope.LocalscopeException: `sigma` is not a permitted global (file "...", line 3, in <genexpr>)
+   localscope.LocalscopeException: `sigma` is not a permitted global (file "...",
+      line 3, in <genexpr>)
 
 Interface
 ---------
