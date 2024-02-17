@@ -16,11 +16,20 @@ def test_vanilla_function():
 
 
 def test_missing_global():
-    with pytest.raises(NameError):
+    def func():
+        return never_ever_declared  # noqa: F821
 
-        @localscope
-        def func():
-            return never_ever_declared  # noqa: F821
+    with pytest.raises(NameError):
+        localscope(func)
+
+    # IMPORTANT! This function can be executed, but localscope complains because the
+    # global variable is not defined at the time when the function is analysed. This
+    # could be improved, but, most likely, one shouldn't write functions that rely on
+    # future globals in the first place.
+    """
+    never_ever_declared = 123
+    assert func() == 123
+    """
 
 
 def test_forbidden_global():

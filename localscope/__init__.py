@@ -85,7 +85,8 @@ def localscope(
         blocks) at the time of declaration because static analysis has a minimal impact
         on performance and it is easier to implement.
     """
-    # Set defaults
+    # Set defaults and construct partial if the callable has not yet been provided for
+    # parameterized decorators, e.g., @localscope(allowed={"foo", "bar"}).
     predicate = predicate or inspect.ismodule
     allowed = set(allowed) if allowed else set()
     if func is None:
@@ -96,6 +97,10 @@ def localscope(
             allowed=allowed,
         )
 
+    # Extract global variables from a function
+    # (https://docs.python.org/3/library/types.html#types.FunctionType) or keep the
+    # explicitly provided globals for code objects
+    # (https://docs.python.org/3/library/types.html#types.CodeType).
     if isinstance(func, types.FunctionType):
         code = func.__code__
         _globals = {**func.__globals__, **inspect.getclosurevars(func).nonlocals}
@@ -103,30 +108,35 @@ def localscope(
         code = func
         _globals = _globals or {}
 
-    # Add function arguments to the list of allowed exceptions
+    # Add function arguments to the list of allowed exceptions.
     allowed.update(code.co_varnames[: code.co_argcount])
 
-    opnames = {"LOAD_GLOBAL"}
+    # Construct set of forbidden operations. The first accesses global variables. The
+    # second accesses variables from the outer scope.
+    forbidden_opnames = {"LOAD_GLOBAL"}
     if not allow_closure:
-        opnames.add("LOAD_DEREF")
+        forbidden_opnames.add("LOAD_DEREF")
 
     LOGGER.info("analysing instructions for %s...", func)
     for instruction in dis.get_instructions(code):
         LOGGER.info(instruction)
         name = instruction.argval
-        if instruction.opname in opnames:
-            # Explicitly allowed
+        if instruction.opname in forbidden_opnames:
+            # Variable explicitly allowed by name or in `builtins`.
             if name in allowed or hasattr(builtins, name):
                 continue
-            # Complain if the variable is not available
+            # Complain if the variable is not available.
             if name not in _globals:
                 raise NameError(f"`{name}` is not in globals")
-            # Get the value of the variable and check it against the predicate
+            # Check if variable is allowed by value.
             value = _globals[name]
             if not predicate(value):
                 raise ValueError(f"`{name}` is not a permitted global")
         elif instruction.opname == "STORE_DEREF":
+            # Store a new allowed variable which has been created in the scope of the
+            # function.
             allowed.add(name)
+
     # Deal with code objects recursively after adding the current arguments to the
     # allowed exceptions
     for const in code.co_consts:
