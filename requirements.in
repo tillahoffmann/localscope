@@ -1,6 +1,11 @@
--e file:.[tests,docs]
+-e file:.
 black
+build
+flake8
 mypy
+pytest
+pytest-cov
+sphinx
 twine
 # Additional version restrictions for Python 3.8.
 alabaster <= 0.7.13
