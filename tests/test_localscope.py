@@ -55,6 +55,12 @@ def test_allowed():
 
     assert return_allowed_global() == allowed_global
 
+    @localscope(allowed="allowed_global integer_global")
+    def return_allowed_global():
+        return allowed_global, integer_global
+
+    assert return_allowed_global() == (allowed_global, integer_global)
+
 
 def test_closure():
     def wrapper():

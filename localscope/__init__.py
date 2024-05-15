@@ -4,7 +4,7 @@ import functools as ft
 import inspect
 import logging
 import types
-from typing import Any, Callable, Dict, Optional, Set, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Set, Union
 
 
 LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def localscope(
     func: Optional[Union[types.FunctionType, types.CodeType]] = None,
     *,
     predicate: Optional[Callable] = None,
-    allowed: Optional[Set[str]] = None,
+    allowed: Optional[Union[Iterable[str], str]] = None,
     allow_closure: bool = False,
 ):
     """
@@ -44,8 +44,8 @@ def localscope(
         localscope.LocalscopeException: `a` is not a permitted global (file "...",
             line 1, in print_a)
 
-        The scope of a function can be extended by providing a list of allowed
-        exceptions.
+        The scope of a function can be extended by providing an iterable of allowed
+        variable names or a string of space-separated allowed variable names.
 
         >>> a = 'hello world'
         >>> @localscope(allowed=['a'])
@@ -87,6 +87,8 @@ def localscope(
     # parameterized decorators, e.g., @localscope(allowed={"foo", "bar"}). This is a
     # thin wrapper around the actual implementation `_localscope`. The wrapper
     # reconstructs an informative traceback.
+    if isinstance(allowed, str):
+        allowed = allowed.split()
     allowed = set(allowed) if allowed else set()
     predicate = predicate or inspect.ismodule
     if not func:
