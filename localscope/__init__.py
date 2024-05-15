@@ -79,7 +79,7 @@ def localscope(
 
     Notes:
 
-        The localscope decorator analysis the decorated function (and any dependent code
+        The localscope decorator analyses the decorated function (and any dependent code
         blocks) at the time of declaration because static analysis has a minimal impact
         on performance and it is easier to implement.
     """
