@@ -3,6 +3,7 @@ import dis
 import functools as ft
 import inspect
 import logging
+import textwrap
 import types
 from typing import Any, Callable, Dict, Iterable, Optional, Set, Union
 
@@ -117,14 +118,36 @@ class LocalscopeException(RuntimeError):
         self,
         message: str,
         code: types.CodeType,
-        instruction: Optional[dis.Instruction] = None,
+        instruction: dis.Instruction,
+        lineno: Optional[int] = None,
     ) -> None:
-        if instruction and instruction.starts_line:
-            lineno = instruction.starts_line
-        else:
-            lineno = code.co_firstlineno
-        details = f'file "{code.co_filename}", line {lineno}, in {code.co_name}'
-        super().__init__(f"{message} ({details})")
+        source = None
+        lineno = instruction.starts_line if lineno is None else lineno
+        if lineno is not None:
+            # Add the source code if we can find it.
+            try:
+                # Get the source, dedent, re-indent, and add a marker where the
+                # error occurred.
+                lines, start = inspect.getsourcelines(code)
+                lines = textwrap.dedent("".join(lines)).split("\n")
+                text = "\n".join(
+                    f"{no:3}: {line}" for no, line in enumerate(lines, start=start)
+                )
+                lines = textwrap.indent(text, "    ").split("\n")
+                offset = lineno - start
+                lines[offset] = "--> " + lines[offset][4:]
+
+                # Don't show all lines of the source.
+                lines = lines[max(0, offset - 2) : offset + 3]
+                source = "\n".join(lines)
+            except OSError:  # pragma: no cover
+                pass
+        message = (
+            f'{message} (file "{code.co_filename}", line {lineno}, in {code.co_name})'
+        )
+        if source:
+            message = f"{message}\n{source}"
+        super().__init__(message)
 
 
 def _localscope(
@@ -162,8 +185,11 @@ def _localscope(
         forbidden_opnames.add("LOAD_DEREF")
 
     LOGGER.info("analysing instructions for %s...", func)
+    lineno = None
     for instruction in dis.get_instructions(code):
         LOGGER.info(instruction)
+        if instruction.starts_line is not None:
+            lineno = instruction.starts_line
         name = instruction.argval
         if instruction.opname in forbidden_opnames:
             # Variable explicitly allowed by name or in `builtins`.
@@ -172,13 +198,13 @@ def _localscope(
             # Complain if the variable is not available.
             if name not in _globals:
                 raise LocalscopeException(
-                    f"`{name}` is not in globals", code, instruction
+                    f"`{name}` is not in globals", code, instruction, lineno
                 )
             # Check if variable is allowed by value.
             value = _globals[name]
             if not predicate(value):
                 raise LocalscopeException(
-                    f"`{name}` is not a permitted global", code, instruction
+                    f"`{name}` is not a permitted global", code, instruction, lineno
                 )
         elif instruction.opname == "STORE_DEREF":
             # Store a new allowed variable which has been created in the scope of the

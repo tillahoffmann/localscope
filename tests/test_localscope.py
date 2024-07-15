@@ -224,3 +224,27 @@ def test_method():
         @localscope(allowed=["x"])
         def my_func(self, a):
             return a + x
+
+
+def test_source():
+    x = 1
+
+    def foo():
+        # This
+        # is
+        # a
+        # long
+        # source
+        # file.
+        if True:
+            print(x)
+
+        # We
+        # have
+        # printed
+        # something
+        # here.
+
+    with pytest.raises(LocalscopeException) as raised:
+        localscope(foo)
+    assert "--> 240:         print(x)" in str(raised.value)
