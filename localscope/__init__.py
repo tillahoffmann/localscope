@@ -3,12 +3,14 @@ import dis
 import functools as ft
 import inspect
 import logging
+import sys
 import textwrap
 import types
 from typing import Any, Callable, Dict, Iterable, Optional, Set, Union
 
 
 LOGGER = logging.getLogger(__name__)
+PY_LT_3_13 = sys.version_info < (3, 13)
 
 
 def localscope(
@@ -123,7 +125,20 @@ class LocalscopeException(RuntimeError):
         lineno: Optional[int] = None,
     ) -> None:
         source = None
-        lineno = instruction.starts_line if lineno is None else lineno
+        # TODO: Conditional coverage.
+        if PY_LT_3_13:  # pragma: no cover
+            lineno = (
+                instruction.starts_line  # type: ignore[attr-defined]
+                if lineno is None
+                else lineno
+            )
+        else:  # pragma: no cover
+            lineno = (
+                instruction.line_number  # type: ignore[attr-defined]
+                if lineno is None
+                else lineno
+            )
+
         if lineno is not None:
             # Add the source code if we can find it.
             try:
@@ -194,8 +209,13 @@ def _localscope(
     lineno = None
     for instruction in dis.get_instructions(code):
         LOGGER.info(instruction)
-        if instruction.starts_line is not None:
-            lineno = instruction.starts_line
+        # TODO: Conditional coverage.
+        if PY_LT_3_13:  # pragma: no cover
+            if instruction.starts_line is not None:  # type: ignore[attr-defined]
+                lineno = instruction.starts_line  # type: ignore[attr-defined]
+        else:  # pragma: no cover
+            if instruction.line_number is not None:  # type: ignore[attr-defined]
+                lineno = instruction.line_number  # type: ignore[attr-defined]
         name = instruction.argval
         if instruction.opname in forbidden_opnames:
             # Variable explicitly allowed by name or in `builtins`.
