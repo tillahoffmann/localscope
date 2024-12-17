@@ -1,6 +1,6 @@
 [project]
 name = "localscope"
-version = "0.2.2"
+version = "0.2.3"
 requires-python = ">=3.8"
 authors = [
     {name = "Till Hoffmann"},
@@ -16,3 +16,6 @@ readme = {text = "Restrict the scope of functions for reproducible code executio
 Documentation = "https://localscope.readthedocs.io"
 Repository = "https://github.com/tillahoffmann/localscope.git"
 Issues = "https://github.com/tillahoffmann/localscope/issues"
+
+[tool.setuptools.packages]
+find = {}
