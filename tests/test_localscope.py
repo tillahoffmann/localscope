@@ -248,3 +248,11 @@ def test_source():
     with pytest.raises(LocalscopeException) as raised:
         localscope(foo)
     assert "--> 240:         print(x)" in str(raised.value)
+
+
+def test_comprehension_closure():
+    def foo(*a, b):
+        print(a, b)
+        return [(a, b) for _ in ()]
+
+    localscope(foo)

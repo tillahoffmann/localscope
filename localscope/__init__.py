@@ -27,6 +27,7 @@ def localscope(
         predicate : Predicate to determine whether a global variable is allowed in the
             scope. Defaults to allow any module.
         allowed: Names of globals that are allowed to enter the scope.
+        allow_closure: Allow access to non-local variables from the enclosing scope.
 
     Attributes:
         mfc: Decorator allowing *m*\\ odules, *f*\\ unctions, and *c*\\ lasses to enter
@@ -175,8 +176,13 @@ def _localscope(
     else:
         code = func
 
-    # Add function arguments to the list of allowed exceptions.
-    allowed.update(code.co_varnames[: code.co_argcount])
+    # Add function arguments to the list of allowed exceptions. We only take
+    # `code.co_argcount + code.co_kwonlyargcount` variables because `code.co_varnames`
+    # contains all local variables.
+    has_varargs = 1 if code.co_flags & inspect.CO_VARARGS else 0
+    allowed.update(
+        code.co_varnames[: code.co_argcount + code.co_kwonlyargcount + has_varargs]
+    )
 
     # Construct set of forbidden operations. The first accesses global variables. The
     # second accesses variables from the outer scope.
