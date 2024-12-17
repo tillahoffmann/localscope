@@ -31,8 +31,9 @@ requirements.txt : requirements.in pyproject.toml
 	pip-compile -v $<
 
 # Docker versions.
-VERSIONS = 3.8 3.9 3.10 3.11 3.12
-IMAGES = ${addprefix docker-image/,${VERSIONS}}
+VERSIONS = 3.8 3.9 3.10 3.11 3.12 3.13
+IMAGES = $(addprefix docker-image/,${VERSIONS})
+RUNS = $(addprefix docker-run/,${VERSIONS})
 
 docker-images : ${IMAGES}
 ${IMAGES} : docker-image/% :
@@ -40,3 +41,7 @@ ${IMAGES} : docker-image/% :
 
 $(addprefix docker-shell/,${VERSIONS}) : docker-shell/% : docker-image/%
 	docker run --rm -it localscope:$* bash
+
+docker-runs : ${RUNS}
+${RUNS} : docker-run/% : docker-image/%
+	docker run --rm -it localscope:$* make build
