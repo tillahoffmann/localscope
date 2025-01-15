@@ -187,7 +187,7 @@ def _localscope(
     # (https://docs.python.org/3/library/types.html#types.CodeType).
     if isinstance(func, types.FunctionType):
         code = func.__code__
-        _globals = {**func.__globals__, **inspect.getclosurevars(func).nonlocals}
+        _globals = {**func.__globals__, **_safely_get_closure_vars(func).nonlocals}
     else:
         code = func
 
@@ -250,6 +250,62 @@ def _localscope(
             )
 
     return func
+
+
+@ft.wraps(inspect.getclosurevars)
+def _safely_get_closure_vars(func):  # pragma: no cover
+    # This function has the same functionality as `inspect.getclosurevars`` but silently
+    # discards empty cells. We need this implementation because the use of `super`
+    # implicitly creates a closure for which cells are not available at the time of
+    # declaration of the function.
+
+    if inspect.ismethod(func):
+        func = func.__func__
+
+    if not inspect.isfunction(func):
+        raise TypeError("{!r} is not a Python function".format(func))
+
+    code = func.__code__
+    # Nonlocal references are named in co_freevars and resolved
+    # by looking them up in __closure__ by positional index
+    if func.__closure__ is None:
+        nonlocal_vars = {}
+    else:
+        # nonlocal_vars = {
+        #     var: cell.cell_contents
+        #     for var, cell in zip(code.co_freevars, func.__closure__)
+        # }
+        nonlocal_vars = {}
+        for var, cell in zip(code.co_freevars, func.__closure__):
+            try:
+                nonlocal_vars[var] = cell.cell_contents
+            except ValueError as ex:
+                if not (var == "__class__" and str(ex) == "Cell is empty"):
+                    raise
+
+    # Global and builtin references are named in co_names and resolved
+    # by looking them up in __globals__ or __builtins__
+    global_ns = func.__globals__
+    builtin_ns = global_ns.get("__builtins__", builtins.__dict__)
+    if inspect.ismodule(builtin_ns):
+        builtin_ns = builtin_ns.__dict__
+    global_vars = {}
+    builtin_vars = {}
+    unbound_names = set()
+    for name in code.co_names:
+        if name in ("None", "True", "False"):
+            # Because these used to be builtins instead of keywords, they
+            # may still show up as name references. We ignore them.
+            continue
+        try:
+            global_vars[name] = global_ns[name]
+        except KeyError:
+            try:
+                builtin_vars[name] = builtin_ns[name]
+            except KeyError:
+                unbound_names.add(name)
+
+    return inspect.ClosureVars(nonlocal_vars, global_vars, builtin_vars, unbound_names)
 
 
 def _allow_mfc(x):

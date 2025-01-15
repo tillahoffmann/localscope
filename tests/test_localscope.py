@@ -256,3 +256,23 @@ def test_comprehension_closure():
         return [(a, b) for _ in ()]
 
     localscope(foo)
+
+
+def test_super():
+    class Foo:
+        @localscope
+        def foo(self):
+            return None
+
+    class Bar(Foo):
+        @localscope
+        def foo(cls):
+            return super().foo()
+
+    a = 3
+    with pytest.raises(LocalscopeException):
+
+        class Baz(Foo):
+            @localscope
+            def foo(cls):
+                return super().foo() + a
