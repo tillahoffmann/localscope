@@ -45,7 +45,7 @@ jobs:
     - name: Build the package
       run: make dist
     - name: Upload to PyPI
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         skip-existing: true
