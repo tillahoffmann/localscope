@@ -31,6 +31,13 @@ Have you ever hunted bugs caused by accidentally using a global variable in a fu
 
 See the :ref:`interface` section for an exhaustive list of options and the :ref:`motivation` for a more detailed example.
 
+Installation
+------------
+
+.. code-block:: bash
+
+   $ pip install localscope
+
 .. _interface:
 
 Interface
