@@ -13,7 +13,6 @@ exclude_patterns = [
     "README.rst",
     "venv",
 ]
-doctest_global_setup = "from localscope import localscope"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }

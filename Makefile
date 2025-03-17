@@ -1,7 +1,7 @@
 .PHONY : dist docs doctests docker-image lint tests
 
 # Build documentation, lint the code, and run tests.
-build : docs doctests lint tests dist
+build : doctests docs lint tests dist
 
 dist : pyproject.toml
 	python -m build

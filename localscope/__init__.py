@@ -39,7 +39,10 @@ def localscope(
 
         Basic example demonstrating the functionality of localscope.
 
+        >>> from localscope import localscope
+        >>>
         >>> a = 'hello world'
+        >>>
         >>> @localscope
         ... def print_a():
         ...     print(a)
@@ -52,9 +55,11 @@ def localscope(
         variable names or a string of space-separated allowed variable names.
 
         >>> a = 'hello world'
+        >>>
         >>> @localscope(allowed=['a'])
         ... def print_a():
         ...     print(a)
+        >>>
         >>> print_a()
         hello world
 
@@ -62,10 +67,11 @@ def localscope(
         to enter the scope (by default, only modules may be used in functions).
 
         >>> a = 'hello world'
-        >>> allow_strings = localscope(predicate=lambda x: isinstance(x, str))
-        >>> @allow_strings
+        >>>
+        >>> @localscope(predicate=lambda x: isinstance(x, str))
         ... def print_a():
         ...     print(a)
+        >>>
         >>> print_a()
         hello world
 
@@ -75,17 +81,27 @@ def localscope(
 
         >>> class MyClass:
         ...     pass
+        >>>
         >>> @localscope.mfc
         ... def create_instance():
         ...     return MyClass()
+        >>>
         >>> create_instance()
         <MyClass object at 0x...>
 
     Notes:
 
-        The localscope decorator analyses the decorated function (and any dependent code
-        blocks) at the time of declaration because static analysis has a minimal impact
-        on performance and it is easier to implement.
+        The localscope decorator analyses the decorated function at the time of
+        declaration because static analysis has a minimal impact on performance and it
+        is easier to implement.
+
+        This also ensures localscope does not affect how your code runs in any way.
+
+        >>> def my_func():
+        ...     pass
+        >>>
+        >>> my_func is localscope(my_func)
+        True
     """
     # Set defaults and construct partial if the callable has not yet been provided for
     # parameterized decorators, e.g., @localscope(allowed={"foo", "bar"}). This is a
