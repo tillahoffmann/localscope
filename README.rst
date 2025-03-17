@@ -13,6 +13,9 @@
 .. image:: https://img.shields.io/pypi/v/localscope.svg
    :target: https://pypi.python.org/pypi/localscope
 
+.. image:: https://static.pepy.tech/badge/localscope
+   :target: https://pepy.tech/projects/localscope
+
 Have you ever hunted bugs caused by accidentally using a global variable in a function in a `Jupyter notebook <https://jupyter.org/>`__? Have you ever scratched your head because your code broke after restarting the Python kernel? localscope can help by restricting the variables a function can access.
 
 .. doctest::
