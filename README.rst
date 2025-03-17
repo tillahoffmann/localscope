@@ -13,7 +13,7 @@
 .. image:: https://img.shields.io/pypi/v/localscope.svg
    :target: https://pypi.python.org/pypi/localscope
 
-Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`__, are outstanding tools for analysing data, generating visualisations, and training machine learning models. However, the interactive nature allows global variables to leak into the scope of functions accidentally, leading to unexpected behaviour. Localscope gives you peace of mind by restricting the variables a function has access to.
+Have you ever hunted bugs caused by accidentally using a global variable in a function in a `Jupyter notebook <https://jupyter.org/>`__? Have you ever scratched your head because your code broke after restarting the Python kernel? localscope can help by restricting the variables a function can access.
 
 .. doctest::
 
@@ -29,10 +29,21 @@ Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`_
    localscope.LocalscopeException: `a` is not a permitted global (file "...",
       line 1, in print_a)
 
-Motivation and detailed example
--------------------------------
+See the :ref:`interface` section for an exhaustive list of options and the :ref:`motivation` for a more detailed example.
 
-Suppose you are evaluating the mean squared error between two lists of numbers, including a scale factor ``sigma``.
+.. _interface:
+
+Interface
+---------
+
+.. autofunction:: localscope.localscope
+
+.. _motivation:
+
+Motivation and Example
+----------------------
+
+Interactive python sessions are outstanding tools for analysing data, generating visualisations, and training machine learning models. However, the interactive nature allows global variables to leak into the scope of functions accidentally, leading to unexpected behaviour. For example, suppose you are evaluating the mean squared error between two lists of numbers, including a scale factor ``sigma``.
 
 .. doctest::
 
@@ -74,8 +85,3 @@ This example may seem contrived. But unintended information leakage from the glo
      ...
    localscope.LocalscopeException: `sigma` is not a permitted global (file "...",
       line 3, in <genexpr>)
-
-Interface
----------
-
-.. autofunction:: localscope.localscope
