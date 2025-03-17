@@ -1,14 +1,17 @@
 🔐 localscope
 =============
 
+.. image:: https://img.shields.io/static/v1?label=&message=GitHub&color=gray&logo=github
+    :target: https://github.com/tillahoffmann/localscope
+
 .. image:: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml/badge.svg
   :target: https://github.com/tillahoffmann/localscope/actions/workflows/build.yml
 
-.. image:: https://img.shields.io/pypi/v/localscope.svg
-   :target: https://pypi.python.org/pypi/localscope
-
 .. image:: https://readthedocs.org/projects/localscope/badge/?version=latest
   :target: https://localscope.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/pypi/v/localscope.svg
+   :target: https://pypi.python.org/pypi/localscope
 
 Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`__, are outstanding tools for analysing data, generating visualisations, and training machine learning models. However, the interactive nature allows global variables to leak into the scope of functions accidentally, leading to unexpected behaviour. Localscope gives you peace of mind by restricting the variables a function has access to.
 
@@ -47,6 +50,7 @@ Everything works nicely, and you package the code in a function for later use bu
 
    >>> def evaluate_mse(xs, ys):  # missing argument sigma
    ...     return sum(((x - y) / sigma) ** 2 for x, y in zip(xs, ys))
+   >>>
    >>> mse = evaluate_mse(xs, ys)
    >>> mse
    0.55102...
@@ -63,7 +67,6 @@ This example may seem contrived. But unintended information leakage from the glo
 
 .. doctest::
 
-   >>> from localscope import localscope
    >>> @localscope
    ... def evaluate_mse(xs, ys):  # missing argument sigma
    ...     return sum(((x - y) / sigma) ** 2 for x, y in zip(xs, ys))
