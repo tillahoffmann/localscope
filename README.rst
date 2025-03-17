@@ -14,7 +14,10 @@ Interactive python sessions, such as `Jupyter notebooks <https://jupyter.org/>`_
 
 .. doctest::
 
+   >>> from localscope import localscope
+   >>>
    >>> a = 'hello world'
+   >>>
    >>> @localscope
    ... def print_a():
    ...     print(a)
@@ -45,7 +48,7 @@ Everything works nicely, and you package the code in a function for later use bu
    >>> def evaluate_mse(xs, ys):  # missing argument sigma
    ...     return sum(((x - y) / sigma) ** 2 for x, y in zip(xs, ys))
    >>> mse = evaluate_mse(xs, ys)
-   >>> round(mse, 5)
+   >>> mse
    0.55102...
 
 The variable ``sigma`` is obtained from the global scope, and the code executes without any issue. But the output is affected by changing the value of sigma.
