@@ -276,3 +276,23 @@ def test_super():
             @localscope
             def foo(cls):
                 return super().foo() + a
+
+def test_obj_defined_later():
+    class Foo:
+        pass
+
+    @localscope(allowed=['our_foo'])
+    def set_foo():
+        our_foo.a = 3
+
+    our_foo = Foo()
+    set_foo()
+    assert our_foo.a == 3
+
+
+
+
+
+
+
+
