@@ -297,7 +297,9 @@ def _safely_get_closure_vars(func):  # pragma: no cover
                 nonlocal_vars[var] = cell.cell_contents
             except ValueError as ex:
                 if not (var == "__class__" and str(ex) == "Cell is empty"):
-                    raise ValueError(f"Error when accessing cell contents for `{var}`: {ex}")
+                    raise ValueError(
+                        f"Error when accessing cell contents for `{var}`: {ex}."
+                    )
 
     # Global and builtin references are named in co_names and resolved
     # by looking them up in __globals__ or __builtins__
