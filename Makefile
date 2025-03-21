@@ -3,7 +3,7 @@
 # Build documentation, lint the code, and run tests.
 build : doctests docs lint tests dist
 
-dist : pyproject.toml
+dist : pyproject.toml version
 	python -m build
 	twine check dist/*.tar.gz dist/*.whl
 
@@ -29,6 +29,9 @@ tests :
 # Build pinned requirements file.
 requirements.txt : requirements.in pyproject.toml
 	pip-compile -v $<
+
+version :
+	./dev/add_version_to_init.py
 
 # Docker versions.
 VERSIONS = 3.9 3.10 3.11 3.12 3.13
