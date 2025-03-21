@@ -268,12 +268,20 @@ def _localscope(
     return func
 
 
+class EmptyCell:
+    """
+    `None`-like singleton indicating an empty cell in a function `__closure__`.
+    """
+
+
 @ft.wraps(inspect.getclosurevars)
 def _safely_get_closure_vars(func):  # pragma: no cover
-    # This function has the same functionality as `inspect.getclosurevars`` but silently
-    # discards empty cells. We need this implementation because the use of `super`
-    # implicitly creates a closure for which cells are not available at the time of
-    # declaration of the function.
+    # This function has the same functionality as `inspect.getclosurevars` but uses the
+    # special value `EmptyCell` instead of raising an error when cell contents are not
+    # available yet. This situation arises when using `super` because it implicitly
+    # creates a cell for `__class__` which is not filled. The same situation arises when
+    # localscope finds a global variable that has not yet been declared (cf.
+    # https://github.com/tillahoffmann/localscope/pull/21).
 
     if inspect.ismethod(func):
         func = func.__func__
@@ -296,10 +304,12 @@ def _safely_get_closure_vars(func):  # pragma: no cover
             try:
                 nonlocal_vars[var] = cell.cell_contents
             except ValueError as ex:
-                if not (var == "__class__" and str(ex) == "Cell is empty"):
-                    raise ValueError(
-                        f"Error when accessing cell contents for `{var}`: {ex}."
-                    )
+                if str(ex) == "Cell is empty":
+                    nonlocal_vars[var] = EmptyCell
+                else:
+                    raise LocalscopeException(
+                        f"Cell for `{var}` is empty: {ex}."
+                    ) from ex
 
     # Global and builtin references are named in co_names and resolved
     # by looking them up in __globals__ or __builtins__

@@ -278,14 +278,18 @@ def test_super():
                 return super().foo() + a
 
 
-def test_obj_defined_later():
+def test_use_global_before_defined():
     class Foo:
         pass
 
-    @localscope(allowed=["our_foo"])
-    def set_foo():
-        our_foo.a = 3
+    @localscope(allowed=["foo"])
+    def access_foo_allowed():
+        return foo
 
-    our_foo = Foo()
-    set_foo()
-    assert our_foo.a == 3
+    with pytest.raises(LocalscopeException, match="`foo` is not a permitted global"):
+
+        @localscope
+        def access_foo_not_allowed():
+            return foo
+
+    foo = Foo()
