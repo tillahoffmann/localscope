@@ -3,7 +3,7 @@
 # Build documentation, lint the code, and run tests.
 build : doctests docs lint tests dist
 
-dist : pyproject.toml
+dist : pyproject.toml version
 	python -m build
 	twine check dist/*.tar.gz dist/*.whl
 
