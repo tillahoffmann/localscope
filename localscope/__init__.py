@@ -308,7 +308,7 @@ def _safely_get_closure_vars(func):  # pragma: no cover
                     nonlocal_vars[var] = EmptyCell
                 else:
                     raise LocalscopeException(
-                        f"Cell for `{var}` is empty: {ex}."
+                        f"Failed to retrieve `{var}` from closure."
                     ) from ex
 
     # Global and builtin references are named in co_names and resolved
