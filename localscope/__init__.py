@@ -9,6 +9,8 @@ import types
 from typing import Any, Callable, Dict, Iterable, Optional, Set, Union
 
 
+__version__ = 'dev'
+
 LOGGER = logging.getLogger(__name__)
 PY_LT_3_13 = sys.version_info < (3, 13)
 
