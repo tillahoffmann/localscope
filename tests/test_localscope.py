@@ -276,3 +276,20 @@ def test_super():
             @localscope
             def foo(cls):
                 return super().foo() + a
+
+
+def test_use_global_before_defined():
+    class Foo:
+        pass
+
+    @localscope(allowed=["foo"])
+    def access_foo_allowed():
+        return foo
+
+    with pytest.raises(LocalscopeException, match="`foo` is not a permitted global"):
+
+        @localscope
+        def access_foo_not_allowed():
+            return foo
+
+    foo = Foo()
