@@ -222,7 +222,7 @@ def _localscope(
         forbidden_opnames.add("LOAD_DEREF")
 
     LOGGER.info("analysing instructions for %s...", func)
-    lineno = None
+    lineno: Any = None
     for instruction in dis.get_instructions(code):
         LOGGER.info(instruction)
         # TODO: Conditional coverage.
