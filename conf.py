@@ -19,5 +19,6 @@ intersphinx_mapping = {
 nitpick_ignore = [
     ("py:class", "code"),
     ("py:class", "function"),
+    ("py:class", "types.LambdaType"),
 ]
 html_theme = "furo"

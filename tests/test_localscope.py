@@ -293,3 +293,62 @@ def test_use_global_before_defined():
             return foo
 
     foo = Foo()
+
+
+def test_reporting_multiple():
+    variable_one = 5
+    variable_two = 10
+    variable_three = 15
+
+    def foo():
+        a = 5
+        b = 10
+        c = 15
+        res = variable_one + a
+        res += variable_two + b
+        res += variable_three + c
+        res += non_existant_global  # noqa: F821
+
+        return res
+
+    with pytest.raises(LocalscopeException) as raised:
+        localscope(foo)
+    assert "`variable_one`" in str(raised.value)
+    assert "`variable_two`" in str(raised.value)
+    assert "`variable_three`" in str(raised.value)
+    assert "`non_existant_global`" in str(raised.value)
+    blocks = str(raised.value).split("\n\n")
+    # test the tracebacks
+    assert any(
+        (
+            x
+            for x in blocks[0].split("\n")
+            if x.startswith("-->") and "variable_one" in x
+        )
+    )
+    assert any(
+        (
+            x
+            for x in blocks[1].split("\n")
+            if x.startswith("-->") and "variable_two" in x
+        )
+    )
+    assert any(
+        (
+            x
+            for x in blocks[2].split("\n")
+            if x.startswith("-->") and "variable_three" in x
+        )
+    )
+    assert any(
+        (
+            x
+            for x in blocks[3].split("\n")
+            if x.startswith("-->") and "non_existant_global" in x
+        )
+    )
+
+    assert "variable_one" in raised.value.vars
+    assert "variable_two" in raised.value.vars
+    assert "variable_three" in raised.value.vars
+    assert "non_existant_global" in raised.value.vars
